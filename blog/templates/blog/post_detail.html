@@ -127,8 +127,7 @@
                 <div class="pb-6 border-b border-gray-100/80 last:border-0 space-y-1.5">
                     <div class="flex items-baseline justify-between">
                         <span class="text-xs font-medium text-gray-500">
-                            De <strong class="text-gray-900 font-semibold">{{
-                                comment.author.get_full_name|default:comment.author.username }}</strong>
+                            De <strong class="text-gray-900 font-semibold">{{comment.author.get_full_name|default:comment.author.username }}</strong>
                         </span>
                         <span class="text-xs text-gray-400">{{ comment.created_at|date:"d M Y à H:i" }}</span>
                     </div>
