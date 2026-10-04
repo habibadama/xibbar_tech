@@ -7,16 +7,16 @@
 
         <!-- MISE EN PAGE EN DEUX COLONNES (Image à gauche sans arrondis, Texte à droite) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start pb-16 mb-16 border-b border-gray-100">
-            
+
             <!-- COLONNE DE GAUCHE : Image de couverture (Bords nets, sans arrondis) -->
             <div class="lg:col-span-5 lg:sticky lg:top-8">
                 {% if post.cover_image %}
                 <div class="overflow-hidden bg-gray-100 aspect-4/3 shadow-sm">
-                    <img src="{{ post.cover_image.url }}" alt="{{ post.title }}"
-                        class="w-full h-full object-cover">
+                    <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
                 </div>
                 {% else %}
-                <div class="aspect-4/3 bg-gray-50 flex items-center justify-center text-gray-400 text-xs font-medium border border-gray-100">
+                <div
+                    class="aspect-4/3 bg-gray-50 flex items-center justify-center text-gray-400 text-xs font-medium border border-gray-100">
                     Xibbar Tech
                 </div>
                 {% endif %}
@@ -24,7 +24,7 @@
 
             <!-- COLONNE DE DROITE : Titre, Infos et Corps de l'article -->
             <div class="lg:col-span-7 space-y-8">
-                
+
                 <!-- En-tête (Catégorie, Actions, Titre, Auteur) -->
                 <header class="space-y-4">
                     <!-- Catégorie & Actions Auteur -->
@@ -38,20 +38,24 @@
 
                         {% if user == post.author %}
                         <div class="flex items-center gap-3 text-xs font-medium">
-                            <a href="{% url 'blog:post_update' post.slug %}" class="text-indigo-600 hover:underline">Modifier</a>
-                            <a href="{% url 'blog:post_delete' post.slug %}" class="text-red-500 hover:underline">Supprimer</a>
+                            <a href="{% url 'blog:post_update' post.slug %}"
+                                class="text-indigo-600 hover:underline">Modifier</a>
+                            <a href="{% url 'blog:post_delete' post.slug %}"
+                                class="text-red-500 hover:underline">Supprimer</a>
                         </div>
                         {% endif %}
                     </div>
 
                     <!-- Titre de l'article -->
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                    <h1
+                        class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
                         {{ post.title }}
                     </h1>
 
                     <!-- Auteur, Date, Vues -->
                     <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500 pt-2">
-                        <span class="font-medium text-gray-800">Posté par {{ post.author.get_full_name|default:post.author.username|upper }}</span>
+                        <span class="font-medium text-gray-800">Posté par {{
+                            post.author.get_full_name|default:post.author.username|upper }}</span>
                         <span>&middot;</span>
                         <span>{{ post.published_at|default:post.created_at|date:"d M Y" }}</span>
                         <span>&middot;</span>
@@ -60,7 +64,8 @@
                 </header>
 
                 <!-- Corps de l'article -->
-                <div class="article-content prose max-w-none text-gray-800 leading-relaxed text-lg pt-4">
+                <div
+                    class="article-content prose prose-sm sm:prose-base lg:prose-lg max-w-none text-gray-800 leading-relaxed pt-4">
                     {{ post.content|safe }}
                 </div>
 
@@ -87,29 +92,33 @@
 
             <!-- Formulaire d'ajout de commentaire -->
             {% if user.is_authenticated %}
-                {% if user == post.author %}
-                <p class="text-gray-500 text-sm mb-10 italic">Vous ne pouvez pas commenter votre propre article.</p>
-                {% else %}
-                <form method="post" class="mb-12 space-y-4">
-                    {% csrf_token %}
-                    <p class="text-xs text-gray-400">
-                        Commenter en tant que <span class="font-semibold text-gray-800">{{ user.get_full_name|default:user.username }}</span>
-                    </p>
-                    <div>
-                        {{ form.content }}
-                        {% for error in form.content.errors %}
-                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    <button type="submit"
-                        class="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer">
-                        Publier
-                    </button>
-                </form>
-                {% endif %}
+            {% if user == post.author %}
+            <p class="text-gray-500 text-sm mb-10 italic">Vous ne pouvez pas commenter votre propre article.</p>
+            {% else %}
+            <form method="post" class="mb-12 space-y-4">
+                {% csrf_token %}
+                <p class="text-xs text-gray-400">
+                    Commenter en tant que <span class="font-semibold text-gray-800">{{
+                        user.get_full_name|default:user.username }}</span>
+                </p>
+                <div>
+                    {{ form.content }}
+                    {% for error in form.content.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <button type="submit"
+                    class="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer">
+                    Publier
+                </button>
+            </form>
+            {% endif %}
             {% else %}
             <div class="mb-12 text-sm text-gray-500">
-                <a href="{% url 'blog:login' %}?next={{ request.path }}" class="text-indigo-600 font-medium hover:underline">Connectez-vous</a> ou <a href="{% url 'blog:register' %}" class="text-indigo-600 font-medium hover:underline">inscrivez-vous</a> pour participer.
+                <a href="{% url 'blog:login' %}?next={{ request.path }}"
+                    class="text-indigo-600 font-medium hover:underline">Connectez-vous</a> ou <a
+                    href="{% url 'blog:register' %}"
+                    class="text-indigo-600 font-medium hover:underline">inscrivez-vous</a> pour participer.
             </div>
             {% endif %}
 
@@ -119,7 +128,8 @@
                 <div class="pb-6 border-b border-gray-100/80 last:border-0 space-y-1.5">
                     <div class="flex items-baseline justify-between">
                         <span class="text-xs font-medium text-gray-500">
-                            De <strong class="text-gray-900 font-semibold">{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                            De <strong class="text-gray-900 font-semibold">{{
+                                comment.author.get_full_name|default:comment.author.username }}</strong>
                         </span>
                         <span class="text-xs text-gray-400">{{ comment.created_at|date:"d M Y à H:i" }}</span>
                     </div>
@@ -128,7 +138,8 @@
                     </p>
                 </div>
                 {% empty %}
-                <p class="text-gray-400 text-sm italic">Aucun commentaire pour le moment. Soyez le premier à écrire un mot !</p>
+                <p class="text-gray-400 text-sm italic">Aucun commentaire pour le moment. Soyez le premier à écrire un
+                    mot !</p>
                 {% endfor %}
             </div>
         </section>
