@@ -29,6 +29,13 @@ DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = ['*']
 
+# Render : adresse du site, pour que les formulaires (connexion, commentaires, contact) soient acceptés
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
+    # Render place le site derrière un proxy HTTPS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
@@ -43,6 +50,13 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'blog',
 ]
+
+# Cloudinary : stockage des images, activé seulement si les variables d'environnement existent
+CLOUDINARY_ENABLED = bool(os.environ.get('CLOUDINARY_CLOUD_NAME'))
+if CLOUDINARY_ENABLED:
+    # 'cloudinary_storage' doit venir AVANT 'django.contrib.staticfiles'
+    INSTALLED_APPS.insert(INSTALLED_APPS.index('django.contrib.staticfiles'), 'cloudinary_storage')
+    INSTALLED_APPS.append('cloudinary')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -136,13 +150,36 @@ STATICFILES_DIRS = [
 
 # Dossier où WhiteNoise va regrouper tous les fichiers statiques pour la production
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
-TAILWIND_CLI_PATH = BASE_DIR / 'tailwind.exe'
+# Stockage des fichiers.
+# (Le réglage STATICFILES_STORAGE n'existe plus depuis Django 5.1 : on utilise STORAGES.)
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
+if CLOUDINARY_ENABLED:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    }
+    # Les images envoyées (couvertures d'articles, CKEditor) vont sur Cloudinary
+    STORAGES['default'] = {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+    }
+
+# Chemin du programme Tailwind : uniquement sur Windows (en local)
+if os.name == 'nt':
+    TAILWIND_CLI_PATH = BASE_DIR / 'tailwind.exe'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
