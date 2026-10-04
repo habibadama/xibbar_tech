@@ -1,0 +1,12 @@
+pre {
+    background-color: #1e1e1e !important; /* Fond sombre moderne */
+    color: #d4d4d4 !important;
+    padding: 1.25rem !important;
+    border-radius: 0.75rem !important;
+    font-family: 'Fira Code', Consolas, Monaco, monospace !important;
+    font-size: 0.9rem !important;
+    line-height: 1.6 !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    overflow-x: hidden !important;
+}

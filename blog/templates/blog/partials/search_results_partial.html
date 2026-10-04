@@ -1,0 +1,12 @@
+{% if query %}
+    {% if posts %}
+        {% for post in posts %}
+        <a href="{% url 'blog:post_detail' post.slug %}" class="block px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-0">
+            <p class="text-sm font-medium text-gray-900">{{ post.title }}</p>
+            <p class="text-xs text-gray-500 truncate">{{ post.excerpt }}</p>
+        </a>
+        {% endfor %}
+    {% else %}
+        <p class="px-4 py-3 text-sm text-gray-400">Aucun résultat pour « {{ query }} »</p>
+    {% endif %}
+{% endif %}

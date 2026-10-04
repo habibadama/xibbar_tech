@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Mes articles - Xibbar Tech{% endblock %}
+
+{% block content %}
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
+
+    <!-- En-tête avec titre et bouton d'action -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-100">
+        <div>
+            <span class="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Tableau de bord</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-1">Mes articles</h1>
+        </div>
+        <a href="{% url 'blog:post_create' %}"
+            class="inline-flex items-center justify-center px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all shadow-sm">
+            + Nouvel article
+        </a>
+    </header>
+
+    {% if posts %}
+    <!-- Liste des articles épurée (sans conteneur global lourd) -->
+    <div class="divide-y divide-gray-100">
+        {% for post in posts %}
+        <article class="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+            
+            <!-- Informations de l'article -->
+            <div class="space-y-1.5 flex-1">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Badge de statut minimaliste -->
+                    <span class="px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase rounded 
+                        {% if post.status == 'published' %}bg-green-50 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {{ post.get_status_display }}
+                    </span>
+
+                    {% if post.category %}
+                    <span class="text-xs font-medium text-indigo-600">
+                        &middot; {{ post.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                    {% if post.status == 'published' %}
+                    <a href="{% url 'blog:post_detail' post.slug %}">{{ post.title }}</a>
+                    {% else %}
+                    {{ post.title }}
+                    {% endif %}
+                </h2>
+
+                <p class="text-xs text-gray-400">
+                    Créé le {{ post.created_at|date:"d M Y" }}
+                </p>
+            </div>
+
+            <!-- Actions (Voir, Modifier, Supprimer) -->
+            <div class="flex items-center gap-3 text-xs font-medium shrink-0 pt-2 sm:pt-0">
+                {% if post.status == 'published' %}
+                <a href="{% url 'blog:post_detail' post.slug %}"
+                    class="text-gray-600 hover:text-gray-900 transition-colors">Voir</a>
+                <span>&middot;</span>
+                {% endif %}
+                <a href="{% url 'blog:post_update' post.slug %}"
+                    class="text-indigo-600 hover:underline">Modifier</a>
+                <span>&middot;</span>
+                <a href="{% url 'blog:post_delete' post.slug %}"
+                    class="text-red-500 hover:underline">Supprimer</a>
+            </div>
+
+        </article>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- État vide épuré -->
+    <div class="py-20 text-center max-w-md mx-auto space-y-4">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-xl font-bold">✍️</div>
+        <div class="space-y-1">
+            <p class="text-gray-900 font-bold">Vous n'avez pas encore écrit d'article</p>
+            <p class="text-xs text-gray-500">Lancez-vous et partagez vos connaissances avec la communauté Xibbar Tech.</p>
+        </div>
+        <div>
+            <a href="{% url 'blog:post_create' %}"
+                class="inline-flex items-center justify-center px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all shadow-sm">
+                Écrire mon premier article
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</main>
+{% endblock %}

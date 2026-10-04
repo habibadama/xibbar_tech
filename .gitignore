@@ -1,0 +1,14 @@
+# Environnement virtuel
+venv/
+env/
+ENV/
+
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+
+# Base de données locale
+db.sqlite3
+
+# Tailwind CLI exécutable (spécifique à Windows)
+tailwind.exe

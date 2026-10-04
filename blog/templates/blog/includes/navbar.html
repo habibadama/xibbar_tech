@@ -1,0 +1,305 @@
+<nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
+        <div class="flex justify-between items-center h-16 xl:h-20">
+
+            <!-- Logo -->
+            <a href="{% url 'blog:home' %}" class="flex items-center gap-2 group">
+                <span class="text-2xl sm:text-3xl font-extrabold tracking-tight text-indigo-600 group-hover:text-indigo-500 transition-colors">
+                    Xibbar<span class="text-gray-900">Tech</span>
+                </span>
+            </a>
+
+            <!-- ========== NAVIGATION ORDINATEUR (≥ 1280px) ========== -->
+            <div class="hidden xl:flex items-center space-x-1 ml-8">
+                <a href="{% url 'blog:home' %}"
+                    class="px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors">Accueil</a>
+
+                <!-- Dropdown Catégories -->
+                <div class="relative">
+                    <button id="categoriesBtn" type="button" aria-expanded="false"
+                        class="px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5">
+                        Catégories
+                        <svg id="categoriesArrow" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <!-- Ajout de custom-scrollbar ici -->
+                    <div id="categoriesDropdown"
+                        class="hidden absolute left-0 top-full mt-1.5 bg-white border border-gray-100 shadow-xl rounded-xl py-2 w-56 z-50 transform opacity-0 scale-95 transition-all duration-150 max-h-72 overflow-y-auto custom-scrollbar">
+                        {% for cat in nav_categories %}
+                        <a href="{% url 'blog:category_detail' cat.slug %}"
+                            class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50/70 hover:text-indigo-600 font-medium transition-colors">
+                            {{ cat.name }}
+                        </a>
+                        {% empty %}
+                        <span class="block px-4 py-2.5 text-sm text-gray-400 italic">Aucune catégorie</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <a href="{% url 'blog:about' %}"
+                    class="px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors">À propos</a>
+                <a href="{% url 'blog:contact' %}" class="px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors">Contact</a>
+            </div>
+
+            <!-- Recherche + authentification (ordinateur) -->
+            <div class="hidden xl:flex items-center gap-4">
+
+                <!-- Recherche -->
+                <form id="searchForm" action="{% url 'blog:search' %}" method="get" class="flex items-center relative">
+                    <div class="relative w-52 2xl:w-72">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+                            </svg>
+                        </span>
+                        <input type="text" name="q" id="searchInput" autocomplete="off"
+                            placeholder="Rechercher..." aria-label="Rechercher un article"
+                            class="w-full text-sm bg-gray-50/80 border border-gray-200 rounded-xl pl-10 pr-4 py-2 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                    </div>
+
+                    <div id="searchResultsPanel"
+                        class="hidden absolute right-0 top-full mt-2 bg-white border border-gray-100 shadow-xl rounded-2xl w-80 max-h-96 overflow-y-auto z-50 p-2 custom-scrollbar">
+                    </div>
+                </form>
+
+                <!-- Actions Auth -->
+                <div class="flex items-center gap-3">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'blog:my_posts' %}"
+                        class="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">Mes articles</a>
+                    
+                    <a href="{% url 'blog:post_create' %}"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 shadow-sm shadow-indigo-200 transition-all transform hover:-translate-y-0.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Écrire
+                    </a>
+
+                    <div class="h-5 w-px bg-gray-200 mx-1"></div>
+
+                    <span class="hidden 2xl:inline text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full">
+                        {{ user.get_full_name|default:user.username }}
+                    </span>
+
+                    <form method="post" action="{% url 'blog:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" title="Se déconnecter" aria-label="Se déconnecter"
+                            class="p-2 text-gray-400 rounded-xl hover:text-red-600 hover:bg-red-50 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'blog:login' %}?next={{ request.path }}"
+                        class="text-sm font-medium text-gray-700 hover:text-indigo-600 px-3 py-2 transition-colors">Connexion</a>
+                    <a href="{% url 'blog:register' %}"
+                        class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 shadow-sm shadow-indigo-200 transition-all">
+                        Inscription
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ========== BOUTON MENU MOBILE (< 1280px) ========== -->
+            <button id="mobileMenuBtn" type="button" aria-label="Ouvrir le menu" aria-expanded="false"
+                class="xl:hidden p-2 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors">
+                <svg id="iconOpen" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg id="iconClose" class="hidden w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== MENU MOBILE ========== -->
+    <div id="mobileMenu" class="hidden xl:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-4 pt-3 pb-6 space-y-3 shadow-lg">
+        
+        <!-- Recherche mobile -->
+        <form action="{% url 'blog:search' %}" method="get" class="relative">
+            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+            </svg>
+            <input type="text" name="q" placeholder="Rechercher un article..." aria-label="Rechercher un article"
+                class="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+        </form>
+
+        <div class="space-y-1">
+            <a href="{% url 'blog:home' %}"
+                class="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">Accueil</a>
+
+            <details class="group">
+                <summary class="flex items-center justify-between px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    Catégories
+                    <svg class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </summary>
+                <!-- Ajout de custom-scrollbar ici aussi -->
+                <div class="pl-3 mt-1 space-y-1 border-l-2 border-indigo-100 ml-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                    {% for cat in nav_categories %}
+                    <a href="{% url 'blog:category_detail' cat.slug %}"
+                        class="block px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                        {{ cat.name }}
+                    </a>
+                    {% empty %}
+                    <span class="block px-3 py-2 text-sm text-gray-400 italic">Aucune catégorie</span>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <a href="{% url 'blog:about' %}"
+                class="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">À propos</a>
+            <a href="#"
+                class="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">Contact</a>
+        </div>
+
+        <!-- Authentification (mobile) -->
+        <div class="pt-3 border-t border-gray-100">
+            {% if user.is_authenticated %}
+            <div class="px-3 pb-3 flex items-center justify-between">
+                <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Connecté en tant que</span>
+                <span class="text-sm font-semibold text-gray-800 bg-gray-100 px-2.5 py-1 rounded-full">{{ user.get_full_name|default:user.username }}</span>
+            </div>
+            
+            <div class="space-y-1">
+                <a href="{% url 'blog:my_posts' %}"
+                    class="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">Mes articles</a>
+                <a href="{% url 'blog:post_create' %}"
+                    class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-base font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Écrire un article
+                </a>
+                <form method="post" action="{% url 'blog:logout' %}" class="pt-1">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-base font-medium text-red-600 hover:bg-red-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Déconnexion
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <a href="{% url 'blog:login' %}?next={{ request.path }}"
+                    class="text-center px-4 py-2.5 text-sm font-semibold text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                    Connexion
+                </a>
+                <a href="{% url 'blog:register' %}"
+                    class="text-center px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 shadow-sm transition-colors">
+                    Inscription
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        (function () {
+            var btn = document.getElementById('mobileMenuBtn');
+            var menu = document.getElementById('mobileMenu');
+            var iconOpen = document.getElementById('iconOpen');
+            var iconClose = document.getElementById('iconClose');
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', function () {
+                var isHidden = menu.classList.toggle('hidden');
+                var open = !isHidden;
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+                iconOpen.classList.toggle('hidden', open);
+                iconClose.classList.toggle('hidden', !open);
+            });
+        })();
+    </script>
+
+    <script>
+        (function () {
+            var searchForm = document.getElementById('searchForm');
+            var searchInput = document.getElementById('searchInput');
+            var searchPanel = document.getElementById('searchResultsPanel');
+            if (!searchForm || !searchInput || !searchPanel) return;
+            var debounceTimer;
+
+            function runSearch(query) {
+                if (!query) {
+                    searchPanel.classList.add('hidden');
+                    return;
+                }
+                fetch(`{% url 'blog:search' %}?q=${encodeURIComponent(query)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(function (res) { return res.text(); })
+                    .then(function (html) {
+                        searchPanel.innerHTML = html;
+                        searchPanel.classList.remove('hidden');
+                    });
+            }
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function () { runSearch(searchInput.value.trim()); }, 300);
+            });
+
+            searchForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                runSearch(searchInput.value.trim());
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!searchForm.contains(e.target)) {
+                    searchPanel.classList.add('hidden');
+                }
+            });
+        })();
+    </script>
+
+    <script>
+        (function () {
+            var btn = document.getElementById('categoriesBtn');
+            var dropdown = document.getElementById('categoriesDropdown');
+            var arrow = document.getElementById('categoriesArrow');
+            if (!btn || !dropdown || !arrow) return;
+
+            function setOpen(open) {
+                if (open) {
+                    dropdown.classList.remove('hidden');
+                    setTimeout(() => {
+                        dropdown.classList.remove('opacity-0', 'scale-95');
+                        dropdown.classList.add('opacity-100', 'scale-100');
+                    }, 10);
+                } else {
+                    dropdown.classList.remove('opacity-100', 'scale-100');
+                    dropdown.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        dropdown.classList.add('hidden');
+                    }, 150);
+                }
+                arrow.classList.toggle('rotate-180', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var isOpen = !dropdown.classList.contains('hidden') && dropdown.classList.contains('opacity-100');
+                setOpen(!isOpen);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    setOpen(false);
+                }
+            });
+        })();
+    </script>
+</nav>

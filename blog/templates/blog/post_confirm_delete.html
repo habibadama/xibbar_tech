@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Supprimer l'article - Xibbar Tech{% endblock %}
+
+{% block content %}
+<main class="max-w-lg mx-auto px-4 sm:px-6 py-20 lg:py-24">
+    
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-100 p-8 sm:p-10 text-center space-y-6">
+        
+        <!-- Icône d'alerte subtile -->
+        <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto text-xl font-bold shadow-sm">
+            ⚠️
+        </div>
+
+        <!-- Titre et description -->
+        <div class="space-y-2">
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Supprimer cet article ?</h1>
+            <p class="text-sm text-gray-500 leading-relaxed max-w-sm mx-auto">
+                Vous êtes sur le point de supprimer définitivement l'article <span class="font-semibold text-gray-800">« {{ post.title }} »</span> ainsi que tous ses commentaires. Cette action est irréversible.
+            </p>
+        </div>
+
+        <!-- Formulaire et boutons d'action -->
+        <form method="post" class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            {% csrf_token %}
+            <button type="submit"
+                class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-red-100 cursor-pointer">
+                Oui, supprimer
+            </button>
+            <a href="{% url 'blog:my_posts' %}"
+                class="w-full sm:w-auto px-6 py-3 text-gray-600 hover:text-gray-900 text-xs font-medium border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-center">
+                Annuler
+            </a>
+        </form>
+
+    </div>
+
+</main>
+{% endblock %}

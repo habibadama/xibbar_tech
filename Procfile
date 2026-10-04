@@ -1,0 +1,1 @@
+web: gunicorn xibbar_tech.wsgi:application --log-file -

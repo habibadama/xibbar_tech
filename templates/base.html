@@ -1,0 +1,45 @@
+{% load tailwind_cli %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Xibbar Tech{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% tailwind_css %}
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    {% include 'blog/includes/navbar.html' %}
+
+    <!-- Affichage des messages flash -->
+    {% if messages %}
+    <div id="flash-messages"
+        class="w-full max-w-xl mx-auto px-4 sm:px-0 mt-6 transition-opacity duration-1000 ease-out">
+        {% for message in messages %}
+        <div class="p-4 rounded-xl text-sm font-medium shadow-sm border flex items-center justify-between
+                    {% if 'success' in message.tags %} bg-emerald-50 text-emerald-800 border-emerald-200
+                    {% elif 'error' in message.tags %} bg-red-50 text-red-800 border-red-200
+                    {% elif 'warning' in message.tags %} bg-amber-50 text-amber-800 border-amber-200
+                    {% else %} bg-blue-50 text-blue-800 border-blue-200
+                    {% endif %}" role="alert">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% include 'blog/includes/footer.html' %}
+
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Inscription - Xibbar Tech{% endblock %}
+
+{% block content %}
+<div class="min-h-[75vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md bg-white border border-gray-100 shadow-xl shadow-gray-100 rounded-3xl p-8 sm:p-10">
+        
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Créer un compte</h1>
+            <p class="text-sm text-gray-500 mt-2">Rejoignez Xibbar Tech en quelques secondes</p>
+        </div>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl space-y-1">
+                {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Nom d'utilisateur -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="id_username">Nom d'utilisateur</label>
+                <input class="w-full bg-gray-50/80 border {% if form.username.errors %}border-red-500 focus:ring-red-500/20 focus:border-red-500{% else %}border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-600{% endif %} rounded-xl px-4 py-3 text-sm text-gray-900 outline-none focus:bg-white focus:ring-2 transition-all" 
+                    type="text" name="username" id="id_username" required autofocus
+                    value="{{ form.username.value|default:'' }}" placeholder="Choisissez un pseudo">
+                {% for error in form.username.errors %}<p class="text-red-600 text-xs mt-1.5 font-medium">{{ error }}</p>{% endfor %}
+            </div>
+
+            <!-- Adresse e-mail -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="id_email">Adresse e-mail</label>
+                <input class="w-full bg-gray-50/80 border {% if form.email.errors %}border-red-500 focus:ring-red-500/20 focus:border-red-500{% else %}border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-600{% endif %} rounded-xl px-4 py-3 text-sm text-gray-900 outline-none focus:bg-white focus:ring-2 transition-all" 
+                    type="email" name="email" id="id_email" required
+                    value="{{ form.email.value|default:'' }}" placeholder="adresse@exemple.com">
+                {% for error in form.email.errors %}<p class="text-red-600 text-xs mt-1.5 font-medium">{{ error }}</p>{% endfor %}
+            </div>
+
+            <!-- Mot de passe -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="id_password1">Mot de passe</label>
+                <input class="w-full bg-gray-50/80 border {% if form.password1.errors %}border-red-500 focus:ring-red-500/20 focus:border-red-500{% else %}border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-600{% endif %} rounded-xl px-4 py-3 text-sm text-gray-900 outline-none focus:bg-white focus:ring-2 transition-all" 
+                    type="password" name="password1" id="id_password1" required placeholder="8 caractères minimum">
+                {% for error in form.password1.errors %}<p class="text-red-600 text-xs mt-1.5 font-medium">{{ error }}</p>{% endfor %}
+            </div>
+
+            <!-- Confirmer le mot de passe -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="id_password2">Confirmer le mot de passe</label>
+                <input class="w-full bg-gray-50/80 border {% if form.password2.errors %}border-red-500 focus:ring-red-500/20 focus:border-red-500{% else %}border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-600{% endif %} rounded-xl px-4 py-3 text-sm text-gray-900 outline-none focus:bg-white focus:ring-2 transition-all" 
+                    type="password" name="password2" id="id_password2" required placeholder="Répétez le mot de passe">
+                {% for error in form.password2.errors %}<p class="text-red-600 text-xs mt-1.5 font-medium">{{ error }}</p>{% endfor %}
+            </div>
+
+            <!-- Bouton de soumission -->
+            <button type="submit" 
+                class="w-full py-3.5 px-4 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 shadow-sm shadow-indigo-200 transition-all transform hover:-translate-y-0.5 mt-2">
+                S'inscrire
+            </button>
+        </form>
+
+        <!-- Pied de carte -->
+        <p class="text-center text-sm text-gray-500 mt-8">
+            Déjà un compte ? 
+            <a href="{% url 'blog:login' %}" class="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">Connectez-vous</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

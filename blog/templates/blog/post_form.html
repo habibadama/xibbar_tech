@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_edit %}Modifier l'article{% else %}Nouvel article{% endif %} - Xibbar Tech{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
+    
+    <!-- En-tête de la page -->
+    <header class="mb-10 pb-6 border-b border-gray-100">
+        <span class="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Espace Rédaction</span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-1">
+            {% if is_edit %}Modifier l'article{% else %}Rédiger un article{% endif %}
+        </h1>
+    </header>
+
+    {{ form.media }}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- Erreurs globales du formulaire -->
+        {% if form.non_field_errors %}
+        <div class="rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm p-4 space-y-1">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Champs du formulaire générés proprement -->
+        <div class="space-y-6">
+            {% for field in form %}
+            <div class="space-y-2">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-900">
+                    {{ field.label }}
+                </label>
+                
+                <div class="mt-1">
+                    {{ field }}
+                </div>
+
+                {% if field.help_text %}
+                <p class="text-xs text-gray-400 italic">{{ field.help_text }}</p>
+                {% endif %}
+
+                {% for error in field.errors %}
+                <p class="text-xs text-red-600 font-medium">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex items-center gap-4 pt-6 border-t border-gray-100">
+            <button type="submit"
+                class="px-6 py-3 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all shadow-sm cursor-pointer">
+                {% if is_edit %}Enregistrer les modifications{% else %}Publier l'article{% endif %}
+            </button>
+            
+            <a href="{% url 'blog:my_posts' %}"
+                class="px-6 py-3 text-gray-600 hover:text-gray-900 text-xs font-medium border border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
+                Annuler
+            </a>
+        </div>
+    </form>
+
+</main>
+{% endblock %}
