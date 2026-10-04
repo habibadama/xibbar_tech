@@ -51,12 +51,11 @@ INSTALLED_APPS = [
     'blog',
 ]
 
-# Cloudinary : stockage des images, activé seulement si les variables d'environnement existent
+# Cloudinary : stockage des images, activé seulement si les variables d'environnement existent.
+# IMPORTANT : on n'ajoute PAS 'cloudinary_storage' à INSTALLED_APPS. Ce paquet remplace la commande
+# collectstatic par une version qui utilise STATICFILES_STORAGE (supprimé depuis Django 5.1) et la fait planter.
+# On utilise seulement sa classe de stockage, déclarée plus bas dans STORAGES.
 CLOUDINARY_ENABLED = bool(os.environ.get('CLOUDINARY_CLOUD_NAME'))
-if CLOUDINARY_ENABLED:
-    # 'cloudinary_storage' doit venir AVANT 'django.contrib.staticfiles'
-    INSTALLED_APPS.insert(INSTALLED_APPS.index('django.contrib.staticfiles'), 'cloudinary_storage')
-    INSTALLED_APPS.append('cloudinary')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
