@@ -54,8 +54,7 @@
 
                     <!-- Auteur, Date, Vues -->
                     <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500 pt-2">
-                        <span class="font-medium text-gray-800">Posté par {{
-                            post.author.get_full_name|default:post.author.username|upper }}</span>
+                        <span class="font-medium text-gray-800">Posté par {{post.author.get_full_name|default:post.author.username|upper }}</span>
                         <span>&middot;</span>
                         <span>{{ post.published_at|default:post.created_at|date:"d M Y" }}</span>
                         <span>&middot;</span>
