@@ -280,10 +280,38 @@ else:
 CKEDITOR_5_CONFIGS = {
     'default': {
         'toolbar': [
-            'heading', '|', 'bold', 'italic', 'link',
-            'imageUpload', 'code', 'codeBlock', '|',
-            'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'
+            # Structure
+            'heading', '|',
+            # Mise en forme du texte
+            'bold', 'italic', 'underline', 'strikethrough',
+            'subscript', 'superscript', 'highlight', '|',
+            # Police et couleurs
+            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+            # Alignement et retrait
+            'alignment', 'outdent', 'indent', '|',
+            # Listes et citation
+            'bulletedList', 'numberedList', 'todoList', 'blockQuote', '|',
+            # Médias et liens
+            'link', 'imageUpload', 'mediaEmbed', 'insertTable', '|',
+            # Code
+            'code', 'codeBlock', 'sourceEditing', '|',
+            # Outils
+            'removeFormat', 'undo', 'redo',
         ],
+        # Barre qui apparaît quand on clique sur une image
+        'image': {
+            'toolbar': [
+                'imageTextAlternative', '|',
+                'imageStyle:alignLeft', 'imageStyle:full', 'imageStyle:alignRight',
+            ],
+        },
+        # Barre qui apparaît quand on clique dans un tableau
+        'table': {
+            'contentToolbar': [
+                'tableColumn', 'tableRow', 'mergeTableCells',
+                'tableProperties', 'tableCellProperties',
+            ],
+        },
         'codeBlock': {
             'languages': [
                 {'language': 'python', 'label': 'Python'},
@@ -291,7 +319,10 @@ CKEDITOR_5_CONFIGS = {
                 {'language': 'css', 'label': 'CSS'},
                 {'language': 'javascript', 'label': 'JavaScript'},
                 {'language': 'php', 'label': 'PHP'},
+                {'language': 'sql', 'label': 'SQL'},
+                {'language': 'bash', 'label': 'Bash'},
+                {'language': 'json', 'label': 'JSON'},
             ]
-        }
+        },
     }
 }
