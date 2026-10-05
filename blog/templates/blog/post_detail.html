@@ -97,8 +97,7 @@
             <form method="post" class="mb-12 space-y-4">
                 {% csrf_token %}
                 <p class="text-xs text-gray-400">
-                    Commenter en tant que <span class="font-semibold text-gray-800">{{
-                        user.get_full_name|default:user.username }}</span>
+                    Commenter en tant que <span class="font-semibold text-gray-800">{{user.get_full_name|default:user.username }}</span>
                 </p>
                 <div>
                     {{ form.content }}

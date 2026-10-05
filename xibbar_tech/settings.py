@@ -12,39 +12,63 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import os
 from pathlib import Path
+
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Charge les variables du fichier .env (uniquement en local)
 try:
     from dotenv import load_dotenv
     load_dotenv(BASE_DIR / '.env')
 except ImportError:
     pass
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-^t1re_#rkitgpzos7fy@1)al$%0$zdbfbbexiatrm)tmud!vhv')
+# ---------------------------------------------------------------------------
+# Sécurité
+# ---------------------------------------------------------------------------
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG est actif en local, désactivé sur Render
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ['*']
+# La clé secrète vient de l'environnement (.env en local, variables Render en production).
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        # Clé de secours valable UNIQUEMENT pour le développement local
+        SECRET_KEY = 'django-insecure-cle-de-developpement-locale'
+    else:
+        raise ImproperlyConfigured(
+            "La variable d'environnement SECRET_KEY est obligatoire en production."
+        )
+
+# Hôtes autorisés : local + adresse du site sur Render
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Render : adresse du site, pour que les formulaires (connexion, commentaires, contact) soient acceptés
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
     # Render place le site derrière un proxy HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # allauth : construit les adresses de retour (callback Google) en https
     ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
+# Protections HTTPS : actives uniquement en production (sur Render)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600  # à augmenter plus tard quand tout fonctionne
 
-# Application definition
+
+# ---------------------------------------------------------------------------
+# Applications
+# ---------------------------------------------------------------------------
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -53,10 +77,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_tailwind_cli',
     'django_ckeditor_5',
     'blog',
-    'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -68,14 +92,14 @@ CLOUDINARY_ENABLED = bool(os.environ.get('CLOUDINARY_CLOUD_NAME'))
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WhiteNoise ajouté ici
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # <--- OBLIGATOIRE pour django-allauth
+    'allauth.account.middleware.AccountMiddleware',  # obligatoire pour django-allauth
 ]
 
 ROOT_URLCONF = 'xibbar_tech.urls'
@@ -99,8 +123,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'xibbar_tech.wsgi.application'
 
 
-# Database
-# Configuration dynamique : PostgreSQL sur Render via DATABASE_URL, MySQL en local par défaut
+# ---------------------------------------------------------------------------
+# Base de données
+# ---------------------------------------------------------------------------
+# PostgreSQL sur Render via DATABASE_URL, MySQL en local par défaut
 DATABASES = {
     'default': dj_database_url.config(
         default='mysql://root:@localhost:3306/xibbar_tech_db',
@@ -109,54 +135,46 @@ DATABASES = {
 }
 
 
-# Password validation
+# ---------------------------------------------------------------------------
+# Validation des mots de passe
+# ---------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 
+# ---------------------------------------------------------------------------
 # Authentification & django-allauth (connexion avec Google)
-# https://docs.djangoproject.com/en/6.1/topics/auth
+# ---------------------------------------------------------------------------
 
-LOGIN_URL = 'blog:login'
-LOGIN_REDIRECT_URL = 'blog:home'
-LOGOUT_REDIRECT_URL = 'blog:home'
-SOCIALACCOUNT_LOGIN_REDIRECT_URL = 'blog:home'  # <--- Redirection spécifique Google ajoutée
+SITE_ID = 1
 
-# Backends d'authentification (Django classique + django-allauth)
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Configuration de base pour un site basé sur l'E-mail (pas de Username requis)
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+LOGIN_URL = 'blog:login'
+LOGIN_REDIRECT_URL = 'blog:home'
+LOGOUT_REDIRECT_URL = 'blog:home'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'blog:home'
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = 'blog:home'
+
+# Connexion par email, inscription sans nom d'utilisateur
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 ACCOUNT_SESSION_REMEMBER = True
 
-# Gestion de la liaison des comptes si l'e-mail existe déjà
+# Liaison automatique des comptes sociaux
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
-# Redirections après connexion / déconnexion
-LOGIN_REDIRECT_URL = '/'  # Page d'accueil de votre blog
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 # Google : les identifiants viennent des variables d'environnement
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -172,20 +190,25 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# MySQL ne gère pas les contraintes d'unicité conditionnelles d'allauth :
+# allauth vérifie lui-même l'unicité, on masque donc cet avertissement.
+SILENCED_SYSTEM_CHECKS = ['models.W036']
 
-# Internationalization
+
+# ---------------------------------------------------------------------------
+# Internationalisation
+# ---------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# ---------------------------------------------------------------------------
+# Fichiers statiques et médias
+# ---------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
@@ -194,14 +217,12 @@ STATICFILES_DIRS = [
     BASE_DIR / 'assets',
 ]
 
-# Dossier où WhiteNoise va regrouper tous les fichiers statiques pour la production
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Dossier où WhiteNoise regroupe les fichiers statiques pour la production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
-
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Stockage des fichiers.
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -226,13 +247,36 @@ if CLOUDINARY_ENABLED:
 if os.name == 'nt':
     TAILWIND_CLI_PATH = BASE_DIR / 'tailwind.exe'
 
-# Email
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
 
+# ---------------------------------------------------------------------------
+# Email
+# ---------------------------------------------------------------------------
+if DEBUG:
+    # En local : les emails s'affichent dans la console
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        },
+    }
+else:
+    # En production : envoi réel par SMTP (variables à définir sur Render)
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+            'OPTIONS': {
+                'host': os.environ.get('EMAIL_HOST', ''),
+                'username': os.environ.get('EMAIL_HOST_USER', ''),
+                'password': os.environ.get('EMAIL_HOST_PASSWORD', ''),
+                'port': int(os.environ.get('EMAIL_PORT', '587')),
+                'use_tls': True,
+            },
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
+# CKEditor 5
+# ---------------------------------------------------------------------------
 CKEDITOR_5_CONFIGS = {
     'default': {
         'toolbar': [
@@ -251,5 +295,3 @@ CKEDITOR_5_CONFIGS = {
         }
     }
 }
-
-SITE_ID = 1
