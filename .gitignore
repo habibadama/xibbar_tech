@@ -12,3 +12,5 @@ db.sqlite3
 
 # Tailwind CLI exécutable (spécifique à Windows)
 tailwind.exe
+
+.env

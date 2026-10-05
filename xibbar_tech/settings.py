@@ -17,6 +17,11 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
@@ -35,6 +40,8 @@ if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
     # Render place le site derrière un proxy HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # allauth : construit les adresses de retour (callback Google) en https
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
 
 # Application definition
@@ -49,12 +56,14 @@ INSTALLED_APPS = [
     'django_tailwind_cli',
     'django_ckeditor_5',
     'blog',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 # Cloudinary : stockage des images, activé seulement si les variables d'environnement existent.
-# IMPORTANT : on n'ajoute PAS 'cloudinary_storage' à INSTALLED_APPS. Ce paquet remplace la commande
-# collectstatic par une version qui utilise STATICFILES_STORAGE (supprimé depuis Django 5.1) et la fait planter.
-# On utilise seulement sa classe de stockage, déclarée plus bas dans STORAGES.
 CLOUDINARY_ENABLED = bool(os.environ.get('CLOUDINARY_CLOUD_NAME'))
 
 MIDDLEWARE = [
@@ -66,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # <--- OBLIGATOIRE pour django-allauth
 ]
 
 ROOT_URLCONF = 'xibbar_tech.urls'
@@ -118,12 +128,49 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Authentification
+# Authentification & django-allauth (connexion avec Google)
 # https://docs.djangoproject.com/en/6.1/topics/auth
 
 LOGIN_URL = 'blog:login'
 LOGIN_REDIRECT_URL = 'blog:home'
 LOGOUT_REDIRECT_URL = 'blog:home'
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = 'blog:home'  # <--- Redirection spécifique Google ajoutée
+
+# Backends d'authentification (Django classique + django-allauth)
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Configuration de base pour un site basé sur l'E-mail (pas de Username requis)
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_SESSION_REMEMBER = True
+
+# Gestion de la liaison des comptes si l'e-mail existe déjà
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# Redirections après connexion / déconnexion
+LOGIN_REDIRECT_URL = '/'  # Page d'accueil de votre blog
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+# Google : les identifiants viennent des variables d'environnement
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APPS': [
+            {
+                'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
+                'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
+                'key': '',
+            }
+        ],
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
 
 
 # Internationalization
@@ -155,7 +202,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Stockage des fichiers.
-# (Le réglage STATICFILES_STORAGE n'existe plus depuis Django 5.1 : on utilise STORAGES.)
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -171,7 +217,7 @@ if CLOUDINARY_ENABLED:
         'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
         'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
     }
-    # Les images envoyées (couvertures d'articles, CKEditor) vont sur Cloudinary
+    # Les images envoyées vont sur Cloudinary
     STORAGES['default'] = {
         'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
     }
@@ -181,8 +227,6 @@ if os.name == 'nt':
     TAILWIND_CLI_PATH = BASE_DIR / 'tailwind.exe'
 
 # Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
-
 MAILERS = {
     'default': {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
@@ -207,3 +251,5 @@ CKEDITOR_5_CONFIGS = {
         }
     }
 }
+
+SITE_ID = 1
