@@ -24,7 +24,7 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()      # Crée le nouvel utilisateur
-            login(request, user)    # Le connecte directement
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')    # Le connecte directement
             return redirect('blog:home')
     else:
         form = RegisterForm()
