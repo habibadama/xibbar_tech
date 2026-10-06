@@ -165,10 +165,10 @@ LOGOUT_REDIRECT_URL = 'blog:home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'blog:home'
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = 'blog:home'
 
-# Connexion par email, inscription sans nom d'utilisateur
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# Configuration moderne : autorise à la fois le username et l'email pour vos formulaires
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_SESSION_REMEMBER = True
 
 # Liaison automatique des comptes sociaux
