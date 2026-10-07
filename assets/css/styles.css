@@ -116,21 +116,29 @@
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); /* Léger halo lumineux indigo */
 }
 
-/* Le tableau défile horizontalement tout seul, sans faire défiler la page */
-.article-content table {
+
+/* Zone de défilement : l'enveloppe que CKEditor met autour du tableau */
+.article-content figure.table {
   display: block;
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-collapse: collapse;
   margin: 1.5rem 0;
+}
+
+/* Le tableau garde sa largeur naturelle et déborde de l'enveloppe si besoin */
+.article-content table {
+  width: max-content !important;
+  min-width: 100% !important;
+  margin: 0 !important;
+  border-collapse: collapse;
 }
 
 .article-content th,
 .article-content td {
   border: 1px solid #d1d5db;
   padding: 0.5rem 0.75rem;
-  min-width: 7rem;
+  min-width: 8rem;
   text-align: left;
   vertical-align: top;
 }

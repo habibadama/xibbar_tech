@@ -165,10 +165,10 @@ LOGOUT_REDIRECT_URL = 'blog:home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'blog:home'
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = 'blog:home'
 
-# Configuration moderne : autorise à la fois le username et l'email pour vos formulaires
+# Connexion possible avec le username ou l'email
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
+# Champs du formulaire d'inscription (* = obligatoire)
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_SESSION_REMEMBER = True
 
 # Liaison automatique des comptes sociaux
