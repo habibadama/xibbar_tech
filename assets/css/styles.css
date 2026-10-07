@@ -115,3 +115,27 @@
     border-color: #6366f1; /* Bordure indigo */
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); /* Léger halo lumineux indigo */
 }
+
+/* Le tableau défile horizontalement tout seul, sans faire défiler la page */
+.article-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.75rem;
+  min-width: 7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.article-content th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
